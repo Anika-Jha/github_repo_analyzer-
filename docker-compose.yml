@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  github-analyzer:
+    build: .
+    container_name: github-analyzer
+    ports:
+      - "8501:8501"
+    volumes:
+      # Mount the source code for development
+      - .:/app
+      # Exclude virtual environment and build files
+      - /app/.venv
+      - /app/__pycache__
+    environment:
+      # Add any environment variables your app needs
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+      # Disable authentication for demo
+      - STREAMLIT_SERVER_ENABLE_CORS=true
+      - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+    restart: unless-stopped
+    # Enable health checking
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
